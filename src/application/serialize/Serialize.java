@@ -12,10 +12,10 @@ public class Serialize {
         this.file = new File(pathname);
     }
 
-    public <E> void serialize(List<E> users) {
+    public <E> void serialize(List<E> dataSerialize) {
         try (FileOutputStream fos = new FileOutputStream(pathname)) {
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(users);
+            oos.writeObject(dataSerialize);
         } catch (IOException e) {
             e.printStackTrace();
         }

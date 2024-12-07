@@ -3,14 +3,13 @@ package application.entity;
 import java.io.Serializable;
 
 public class UserEntity implements Serializable {
-    private static int idUsers = 0;
     private int id;
     private String username;
     private String password;
     private String email;
+    private String speciality;
 
     public UserEntity() {
-        this.id = idUsers++;
     }
 
     public int getId() {
@@ -45,6 +44,13 @@ public class UserEntity implements Serializable {
         this.email = email;
     }
 
+    public String getSpeciality() {
+        return speciality;
+    }
+
+    public void setSpeciality(String speciality) {
+        this.speciality = speciality;
+    }
     @Override
     public String toString() {
         return "UserEntity{" +

@@ -4,12 +4,13 @@ import application.dataHandlers.UserDataHandler;
 import application.entity.UserEntity;
 import application.serialize.Serialize;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Application {
-    private Scanner scanner;
-    private UserDataHandler userDataHandler;
+    private final Scanner scanner;
+    private final UserDataHandler userDataHandler;
 
     public Application(Scanner scanner, UserDataHandler userDataHandler) {
         this.scanner = scanner;
@@ -19,30 +20,62 @@ public class Application {
     public void run() {
         System.out.println("Welcome");
 
+        label:
         while (true) {
             System.out.println("Введите команду: ");
             String command = scanner.next();
 
-            if (command.equals("exit")) {
-                System.out.println("Спасибо что пользовались приложением: ");
-                break;
-            } else if (command.equals("get_all_users")) {
-                get_all_users();
-            } else if (command.equals("register")) {
-                register();
-            } else if (command.equals("user_by_param")) {
-                user_by_param();
-            } else System.out.println("Такой команды нет");
+            switch (command) {
+                case "exit":
+                    System.out.println("Спасибо что пользовались приложением: ");
+                    break label;
+                case "get_all_users":
+                    get_all_users();
+                    break;
+                case "register":
+                    register();
+                    break;
+                case "user_by_param":
+                    user_by_param();
+                    break;
+                case "login":
+                    login();
+                    break;
+                case "help":
+                    help();
+                    break;
+                case "user_info":
+                    user_info();
+                    break;
+                default:
+                    System.out.println("Такой команды нет");
+                    break;
+            }
         }
         System.out.println("Приложение закончилось");
     }
 
+//    Логгирование
+    private void login(){
+        System.out.println("Введите email пользоветеля чтобы войти");
+        String email = scanner.next();
+        System.out.println("Введите password пользователя");
+        String password = scanner.next();
+        userDataHandler.login(email, password);
+    }
+//    Инфо о user
+    private void user_info(){
+        System.out.println("Инфо о user");
+        userDataHandler.user_info();
+    }
+//    Логика Регистрации
     private void register() {
         System.out.println("Началась регистрация: ");
         UserEntity userEntity = new UserEntity();
 
         System.out.println("Введите имя пользователя");
         userEntity.setUsername(scanner.next());
+
         System.out.println("Введите email: ");
         userEntity.setEmail(scanner.next());
         System.out.println("Введите пароль: ");
@@ -52,14 +85,38 @@ public class Application {
             System.out.println("Пароли не совпадают. Ошибка регистрации (Начните с начала)");
             return;
         }
+        userEntity.setSpeciality(chooseUserSpeciality());
         userDataHandler.userSave(userEntity);
     }
+
+    private String chooseUserSpeciality() {
+        List<String> newListForUsers = new ArrayList<>(List.of("Продавец", "Покупатель", "Поставщик"));
+
+        for (int i = 0; i < newListForUsers.size(); i++) {
+            System.out.println((i + 1) + ". " + newListForUsers.get(i));
+        }
+        System.out.println("Введите номер специальности:");
+
+        while (true) {
+            try {
+                int choice = Integer.parseInt(scanner.next());
+                if (choice >= 1 && choice <= newListForUsers.size()) {
+                    return newListForUsers.get(choice - 1);
+                } else {
+                    System.out.println("Выберите номер от 1 до " + newListForUsers.size());
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Введите корректное число!");
+            }
+        }
+    }
+//    Логика посика user
     private void user_by_param(){
         System.out.println("Введите имя или id user чтобы получить его: ");
         String user = scanner.next();
         System.out.println(userDataHandler.getUserByParam(user));
     }
-
+//    Вывод всех user
     private void get_all_users() {
         System.out.println("Список пользователей в системе: ");
         Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/users.txt");
@@ -68,7 +125,26 @@ public class Application {
         if (userEntities == null || userEntities.isEmpty()) {
             System.out.println("Пользователей пока нет.");
         } else {
-            userEntities.forEach(user -> System.out.println("ID: " + user.getId() + ", Username: " + user.getUsername() + ", Email: " + user.getEmail()  + ", Password: " + user.getPassword()));
+            userEntities.forEach(user -> System.out.println("ID: " + user.getId() + ", Username: " + user.getUsername() + ", Email: " + user.getEmail()  + ", Password: " + user.getPassword() + ", Speciality: " + user.getSpeciality()));
         }
+    }
+    private void help(){
+        System.out.println("""
+                register - регистрация нового пользователя.
+                login - авторизация пользователя.
+                logout - выход из учетной записи.
+                catalog - просмотр каталога товаров.
+                search [запрос]: поиск товара по названию или описанию.
+                add_to_cart [ID товара]: добавление товара в корзину.
+                cart - просмотр корзины покупок.
+                checkout - оформление заказа.
+                orders - просмотр истории заказов (для покупателей).
+                add_product - добавление нового товара (для продавцов).
+                all_new_product - вывод новых товаров которые появились у поставщиков (Для продавца)
+                update_product [ID товара] - редактирование товара (для продавцов).
+                update_stock [ID товара] [новое количество]: обновление количества товара (для поставщиков).
+                leave_review [ID товара] [оценка] [текст отзыва]: оставить отзыв о товаре (для покупателей).
+                help - вывод списка команд с описание для каждого пользователя свой список команд
+                """);
     }
 }
