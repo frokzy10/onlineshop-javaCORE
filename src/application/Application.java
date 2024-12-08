@@ -1,20 +1,25 @@
 package application;
 
+import application.dataHandlers.SupplierDataHandler;
 import application.dataHandlers.UserDataHandler;
+import application.entity.ProductEntity;
 import application.entity.UserEntity;
 import application.serialize.Serialize;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Application {
     private final Scanner scanner;
     private final UserDataHandler userDataHandler;
+    private final SupplierDataHandler supplierDataHandler;
 
-    public Application(Scanner scanner, UserDataHandler userDataHandler) {
+    public Application(Scanner scanner, UserDataHandler userDataHandler, SupplierDataHandler supplierDataHandler) {
         this.scanner = scanner;
         this.userDataHandler = userDataHandler;
+        this.supplierDataHandler = new SupplierDataHandler();
     }
 
     public void run() {
@@ -35,6 +40,9 @@ public class Application {
                 case "register":
                     register();
                     break;
+                case "logout":
+                    logout();
+                    break;
                 case "user_by_param":
                     user_by_param();
                     break;
@@ -47,6 +55,12 @@ public class Application {
                 case "user_info":
                     user_info();
                     break;
+                case "add_item":
+                    add_item();
+                    break;
+                case "info_items":
+                    info_items();
+                    break;
                 default:
                     System.out.println("Такой команды нет");
                     break;
@@ -55,20 +69,26 @@ public class Application {
         System.out.println("Приложение закончилось");
     }
 
-//    Логгирование
-    private void login(){
+    //    Логгирование
+    private void login() {
         System.out.println("Введите email пользоветеля чтобы войти");
         String email = scanner.next();
         System.out.println("Введите password пользователя");
         String password = scanner.next();
         userDataHandler.login(email, password);
     }
-//    Инфо о user
-    private void user_info(){
+
+    private void logout() {
+        userDataHandler.logout();
+    }
+
+    //    Инфо о user
+    private void user_info() {
         System.out.println("Инфо о user");
         userDataHandler.user_info();
     }
-//    Логика Регистрации
+
+    //    Логика Регистрации
     private void register() {
         System.out.println("Началась регистрация: ");
         UserEntity userEntity = new UserEntity();
@@ -110,13 +130,15 @@ public class Application {
             }
         }
     }
-//    Логика посика user
-    private void user_by_param(){
+
+    //    Логика посика user
+    private void user_by_param() {
         System.out.println("Введите имя или id user чтобы получить его: ");
         String user = scanner.next();
         System.out.println(userDataHandler.getUserByParam(user));
     }
-//    Вывод всех user
+
+    //    Вывод всех user
     private void get_all_users() {
         System.out.println("Список пользователей в системе: ");
         Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/users.txt");
@@ -125,10 +147,65 @@ public class Application {
         if (userEntities == null || userEntities.isEmpty()) {
             System.out.println("Пользователей пока нет.");
         } else {
-            userEntities.forEach(user -> System.out.println("ID: " + user.getId() + ", Username: " + user.getUsername() + ", Email: " + user.getEmail()  + ", Password: " + user.getPassword() + ", Speciality: " + user.getSpeciality()));
+            userEntities.forEach(user -> System.out.println("ID: " + user.getId() + ", Username: " + user.getUsername() + ", Email: " + user.getEmail() + ", Password: " + user.getPassword() + ", Speciality: " + user.getSpeciality()));
         }
     }
-    private void help(){
+
+
+    private void add_item() {
+        if (userDataHandler.loggedUser == null) {
+            System.out.println("Войдите или зарегистрируйтесь в систему!");
+            return;
+        }
+
+        if (!Objects.equals(userDataHandler.loggedUser.getSpeciality(), "Поставщик")) {
+            System.out.println("Вы не поставщик");
+            return;
+        }
+
+        ProductEntity p = new ProductEntity();
+
+        System.out.println("Введите имя товара: ");
+        String name = scanner.next();
+        p.setName(name);
+
+        System.out.println("Введите описание: ");
+        String description = scanner.next();
+        p.setDescription(description);
+
+        boolean validPrice = false;
+        double price = 0.0;
+        while (!validPrice) {
+            System.out.println("Введите цену товара: ");
+            String priceInput = scanner.next();
+            try {
+                price = Double.parseDouble(priceInput);
+                validPrice = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите корректную цену (число).");
+            }
+        }
+
+        p.setPrice(price);
+        p.setSupplier(userDataHandler.loggedUser);
+
+        supplierDataHandler.addItem(userDataHandler.loggedUser, p);
+        System.out.println("Товар успешно добавлен!");
+    }
+    private void info_items(){
+        if (userDataHandler.loggedUser == null) {
+            System.out.println("Войдите или зарегистрируйтесь в систему!");
+            return;
+        }
+
+        if (!Objects.equals(userDataHandler.loggedUser.getSpeciality(), "Поставщик")) {
+            System.out.println("Вы не поставщик");
+            return;
+        }
+        System.out.println(supplierDataHandler.getProductsInfo(userDataHandler.loggedUser));
+    }
+
+    private void help() {
         System.out.println("""
                 register - регистрация нового пользователя.
                 login - авторизация пользователя.

@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class UserDataHandler {
     private List<UserEntity> usersList = new ArrayList<>();
-    private UserEntity loggedUser = null;
+    public UserEntity loggedUser = null;
 
     public UserEntity userSave(UserEntity user) {
         Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/users.txt");
@@ -31,6 +31,10 @@ public class UserDataHandler {
         serialize.serialize(usersList);
         loggedUser = user;
         return user;
+    }
+    public void logout(){
+        System.out.println("Вы вышли из аккаунта");
+        loggedUser = null;
     }
 
     public void user_info(){

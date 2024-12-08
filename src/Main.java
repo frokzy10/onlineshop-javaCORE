@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import application.Application;
+import application.dataHandlers.SupplierDataHandler;
 import application.dataHandlers.UserDataHandler;
 
 public class Main {
@@ -11,10 +12,11 @@ public class Main {
     public static Application getStarted(){
         Scanner scanner = new Scanner(System.in);
         UserDataHandler userDataHandler = new UserDataHandler();
-
+        SupplierDataHandler supplierDataHandler = new SupplierDataHandler();
         return new Application (
                 scanner,
-                userDataHandler
+                userDataHandler,
+                supplierDataHandler
         );
     }
 }

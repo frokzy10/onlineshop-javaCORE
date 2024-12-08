@@ -1,14 +1,40 @@
 package application.entity;
 
-public class ProductEntity {
+import java.io.Serializable;
+
+public class ProductEntity implements Serializable {
     private int id;
     private String name;
     private String description;
+    private double price;
+    private UserEntity supplier;
 
 
-    public ProductEntity(String name, String description) {
+    public ProductEntity(String name, String description, double price, UserEntity supplier) {
         this.name = name;
         this.description = description;
+        this.price = price;
+        this.supplier = supplier;
+    }
+
+    public ProductEntity() {
+
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public UserEntity getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(UserEntity supplier) {
+        this.supplier = supplier;
     }
 
     public int getId() {
@@ -41,6 +67,8 @@ public class ProductEntity {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                ", price=" + price +
+                ", supplier=" + supplier +
                 '}';
     }
 }
