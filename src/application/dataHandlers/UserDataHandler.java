@@ -2,16 +2,17 @@ package application.dataHandlers;
 
 import application.serialize.Serialize;
 import application.entity.UserEntity;
+import application.service.UserService;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class UserDataHandler {
+public class UserDataHandler implements UserService {
     private List<UserEntity> usersList = new ArrayList<>();
     public UserEntity loggedUser = null;
 
+    @Override
     public UserEntity userSave(UserEntity user) {
         Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/users.txt");
 
@@ -32,11 +33,12 @@ public class UserDataHandler {
         loggedUser = user;
         return user;
     }
+    @Override
     public void logout(){
         System.out.println("Вы вышли из аккаунта");
         loggedUser = null;
     }
-
+    @Override
     public void user_info(){
         if (loggedUser != null) {
             System.out.println("Username : " + loggedUser.getUsername());
@@ -46,7 +48,7 @@ public class UserDataHandler {
             System.out.println("Не найден");
         }
     }
-
+    @Override
     public List<UserEntity> getUserByParam(String data) {
         Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/users.txt");
         usersList = serialize.deserialize();
@@ -65,6 +67,7 @@ public class UserDataHandler {
         return newListForUsers;
     }
 
+    @Override
     public UserEntity login(String email, String password) {
         Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/users.txt");
         usersList = serialize.deserialize();

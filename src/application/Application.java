@@ -151,7 +151,7 @@ public class Application {
         }
     }
 
-
+//    Логика продуктов
     private void add_item() {
         if (userDataHandler.loggedUser == null) {
             System.out.println("Войдите или зарегистрируйтесь в систему!");
@@ -159,7 +159,7 @@ public class Application {
         }
 
         if (!Objects.equals(userDataHandler.loggedUser.getSpeciality(), "Поставщик")) {
-            System.out.println("Вы не поставщик");
+            System.out.println("Вы не поставщик, вы " + userDataHandler.loggedUser.getSpeciality());
             return;
         }
 
