@@ -1,8 +1,11 @@
 package application.entity;
 
+
+
+import java.io.Serializable;
 import java.util.List;
 
-public class ShopEntity {
+public class ShopEntity implements Serializable {
     private int id;
     private String name;
     private String address;

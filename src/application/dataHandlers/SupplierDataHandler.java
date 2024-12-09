@@ -5,6 +5,7 @@ import application.entity.ShopEntity;
 import application.entity.UserEntity;
 import application.serialize.Serialize;
 import application.service.SupplierService;
+import application.util.GenerateUniqueClass;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,26 +16,30 @@ public class SupplierDataHandler implements SupplierService {
     private List<ShopEntity> shops = new ArrayList<>();
     private Serialize serialize;
 
-    public SupplierDataHandler() {
-
-    }
-
     @Override
     public void addItem(UserEntity user, ProductEntity product) {
-        serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
+        Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
 
-        if(products == null){
+        if (products == null) {
             products = new ArrayList<>();
         }
 
-        product.setSupplier(user);
+        int id = GenerateUniqueClass.generateId(products,ProductEntity::getId);
+        product.setId(id);
         products.add(product);
         serialize.serialize(products);
     }
 
     @Override
     public void addShop(UserEntity user, ShopEntity shop) {
-
+        Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
+        if (shops == null) {
+            shops = new ArrayList<>();
+        }
+        int id = GenerateUniqueClass.generateId(shops,ShopEntity::getId);
+        shop.setId(id);
+        shops.add(shop);
+        serialize.serialize(shops);
     }
 
     @Override
@@ -65,7 +70,31 @@ public class SupplierDataHandler implements SupplierService {
     }
 
     @Override
-    public void updateItem(UserEntity user, ProductEntity product) {
+    public void updateItem(UserEntity user, ProductEntity updatedProduct) {
+        Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
+        List<ProductEntity> products = serialize.deserialize();
 
+        if (products == null || products.isEmpty()) {
+            System.out.println("Список товаров пуст.");
+            return;
+        }
+
+        boolean updated = false;
+        for (int i = 0; i < products.size(); i++) {
+            ProductEntity existingProduct = products.get(i);
+
+            if (existingProduct.getId() == updatedProduct.getId()) {
+                products.set(i, updatedProduct);
+                updated = true;
+                break;
+            }
+        }
+
+        if (updated) {
+            serialize.serialize(products);
+            System.out.println("Товар успешно обновлен: " + updatedProduct);
+        } else {
+            System.out.println("Товар с указанным ID не найден или не принадлежит текущему пользователю.");
+        }
     }
 }

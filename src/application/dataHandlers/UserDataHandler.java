@@ -3,6 +3,7 @@ package application.dataHandlers;
 import application.serialize.Serialize;
 import application.entity.UserEntity;
 import application.service.UserService;
+import application.util.GenerateUniqueClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Objects;
 public class UserDataHandler implements UserService {
     private List<UserEntity> usersList = new ArrayList<>();
     public UserEntity loggedUser = null;
+
 
     @Override
     public UserEntity userSave(UserEntity user) {
@@ -26,8 +28,8 @@ public class UserDataHandler implements UserService {
                 return null;
             }
         }
-
-        user.setId(generateUniqueId(usersList));
+        int id = GenerateUniqueClass.generateId(usersList,UserEntity::getId);
+        user.setId(id);
         usersList.add(user);
         serialize.serialize(usersList);
         loggedUser = user;
@@ -91,21 +93,5 @@ public class UserDataHandler implements UserService {
         } catch (NumberFormatException e) {
             return false;
         }
-    }
-
-    private final int generateUniqueId(List<UserEntity> users) {
-        int newId = 0;
-        boolean unique;
-        do {
-            unique = true;
-            for (UserEntity user : users) {
-                if (user.getId() == newId) {
-                    unique = false;
-                    newId++;
-                    break;
-                }
-            }
-        } while (!unique);
-        return newId;
     }
 }

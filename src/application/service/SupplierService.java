@@ -6,7 +6,7 @@ import application.entity.UserEntity;
 
 import java.util.List;
 
-public interface SupplierService {
+public interface SupplierService<T> {
     void addItem(UserEntity user, ProductEntity product);
     void addShop(UserEntity user, ShopEntity shop);
     List<ShopEntity> getShopsInfo();

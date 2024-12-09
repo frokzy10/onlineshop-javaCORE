@@ -1,5 +1,6 @@
 package application.entity;
 
+
 import java.io.Serializable;
 
 public class UserEntity implements Serializable {

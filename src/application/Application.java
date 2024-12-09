@@ -6,6 +6,7 @@ import application.entity.ProductEntity;
 import application.entity.UserEntity;
 import application.serialize.Serialize;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +20,7 @@ public class Application {
     public Application(Scanner scanner, UserDataHandler userDataHandler, SupplierDataHandler supplierDataHandler) {
         this.scanner = scanner;
         this.userDataHandler = userDataHandler;
-        this.supplierDataHandler = new SupplierDataHandler();
+        this.supplierDataHandler = supplierDataHandler;
     }
 
     public void run() {
@@ -60,6 +61,9 @@ public class Application {
                     break;
                 case "info_items":
                     info_items();
+                    break;
+                case "update_item":
+                    update_item();
                     break;
                 default:
                     System.out.println("Такой команды нет");
@@ -151,6 +155,8 @@ public class Application {
         }
     }
 
+//    Логика магазина
+
 //    Логика продуктов
     private void add_item() {
         if (userDataHandler.loggedUser == null) {
@@ -192,6 +198,35 @@ public class Application {
         supplierDataHandler.addItem(userDataHandler.loggedUser, p);
         System.out.println("Товар успешно добавлен!");
     }
+    private void update_item(){
+        if (!Objects.equals(userDataHandler.loggedUser.getSpeciality(), "Поставщик")) {
+            System.out.println("Вы не поставщик, вы " + userDataHandler.loggedUser.getSpeciality());
+            return;
+        }
+        if (userDataHandler.loggedUser == null) {
+            System.out.println("Войдите или зарегистрируйтесь в систему!");
+            return;
+        }
+        ProductEntity p = new ProductEntity();
+
+        System.out.println("Введите id товара чтобы его обновить: ");
+        String id = scanner.next();
+        p.setId(Integer.parseInt(id));
+
+        System.out.println("Введите новое имя товара: ");
+        String name = scanner.next();
+        p.setName(name);
+        System.out.println("Введите новое описание товара: ");
+        String description = scanner.next();
+        p.setDescription(description);
+        System.out.println("Введите новую стоимость товара ");
+        String priceInput = scanner.next();
+        p.setPrice(Double.parseDouble(priceInput));
+
+        p.setSupplier(userDataHandler.loggedUser);
+        supplierDataHandler.updateItem(userDataHandler.loggedUser,p);
+    }
+
     private void info_items(){
         if (userDataHandler.loggedUser == null) {
             System.out.println("Войдите или зарегистрируйтесь в систему!");
@@ -205,6 +240,7 @@ public class Application {
         System.out.println(supplierDataHandler.getProductsInfo(userDataHandler.loggedUser));
     }
 
+//    help
     private void help() {
         System.out.println("""
                 register - регистрация нового пользователя.
