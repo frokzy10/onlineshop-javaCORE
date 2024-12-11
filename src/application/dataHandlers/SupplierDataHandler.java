@@ -18,7 +18,7 @@ public class SupplierDataHandler implements SupplierService {
 
     @Override
     public void addItem(UserEntity user, ProductEntity product) {
-        Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
+        serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
 
         if (products == null) {
             products = new ArrayList<>();
@@ -32,7 +32,7 @@ public class SupplierDataHandler implements SupplierService {
 
     @Override
     public void addShop(UserEntity user, ShopEntity shop) {
-        Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
+        serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
         if (shops == null) {
             shops = new ArrayList<>();
         }
@@ -49,7 +49,7 @@ public class SupplierDataHandler implements SupplierService {
 
     @Override
     public List<ProductEntity> getProductsInfo(UserEntity user) {
-        Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
+        serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/products.txt");
         List<ProductEntity> products = serialize.deserialize();
 
         if (products == null || products.isEmpty()) {

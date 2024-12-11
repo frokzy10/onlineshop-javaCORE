@@ -1,11 +1,7 @@
 package application.entity;
 
 
-
-import java.io.Serializable;
-
-public class ProductEntity implements Serializable {
-
+public class ProductEntity {
     private int id;
     private String name;
     private String description;
@@ -21,7 +17,6 @@ public class ProductEntity implements Serializable {
     }
 
     public ProductEntity() {
-
     }
 
     public double getPrice() {

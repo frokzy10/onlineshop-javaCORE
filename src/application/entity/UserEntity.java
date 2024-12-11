@@ -1,9 +1,8 @@
 package application.entity;
 
 
-import java.io.Serializable;
 
-public class UserEntity implements Serializable {
+public class UserEntity {
     private int id;
     private String username;
     private String password;
@@ -11,6 +10,14 @@ public class UserEntity implements Serializable {
     private String speciality;
 
     public UserEntity() {
+    }
+
+    public UserEntity(int id, String username, String password, String email, String speciality) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.speciality = speciality;
     }
 
     public int getId() {
@@ -52,6 +59,7 @@ public class UserEntity implements Serializable {
     public void setSpeciality(String speciality) {
         this.speciality = speciality;
     }
+
     @Override
     public String toString() {
         return "UserEntity{" +
@@ -59,6 +67,7 @@ public class UserEntity implements Serializable {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
+                ", speciality='" + speciality + '\'' +
                 '}';
     }
 }

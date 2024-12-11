@@ -4,9 +4,14 @@ import application.dataHandlers.SupplierDataHandler;
 import application.dataHandlers.UserDataHandler;
 import application.entity.ProductEntity;
 import application.entity.UserEntity;
+import application.file_worker.UserFileWorker;
 import application.serialize.Serialize;
+import application.util.ScannerUtil;
 
-import java.sql.SQLOutput;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,16 +29,14 @@ public class Application {
     }
 
     public void run() {
-        System.out.println("Welcome");
-
         label:
         while (true) {
-            System.out.println("Введите команду: ");
-            String command = scanner.next();
+            System.out.print("Введите команду: ");
+            String command = ScannerUtil.nextLine();
 
             switch (command) {
                 case "exit":
-                    System.out.println("Спасибо что пользовались приложением: ");
+                    System.out.print("Спасибо что пользовались приложением: ");
                     break label;
                 case "get_all_users":
                     get_all_users();
@@ -75,9 +78,9 @@ public class Application {
 
     //    Логгирование
     private void login() {
-        System.out.println("Введите email пользоветеля чтобы войти");
+        System.out.print("Введите email пользоветеля чтобы войти: ");
         String email = scanner.next();
-        System.out.println("Введите password пользователя");
+        System.out.print("Введите password пользователя: ");
         String password = scanner.next();
         userDataHandler.login(email, password);
     }
@@ -97,14 +100,14 @@ public class Application {
         System.out.println("Началась регистрация: ");
         UserEntity userEntity = new UserEntity();
 
-        System.out.println("Введите имя пользователя");
+        System.out.println("Введите имя пользователя: ");
         userEntity.setUsername(scanner.next());
 
         System.out.println("Введите email: ");
         userEntity.setEmail(scanner.next());
         System.out.println("Введите пароль: ");
         userEntity.setPassword(scanner.next());
-        System.out.println("повторите ваш пароль");
+        System.out.println("повторите ваш пароль: ");
         if (!userEntity.getPassword().equals(scanner.next())) {
             System.out.println("Пароли не совпадают. Ошибка регистрации (Начните с начала)");
             return;
@@ -113,92 +116,96 @@ public class Application {
         userDataHandler.userSave(userEntity);
     }
 
-    private String chooseUserSpeciality() {
-        List<String> newListForUsers = new ArrayList<>(List.of("Продавец", "Покупатель", "Поставщик"));
+    public String chooseUserSpeciality() {
+        String[] arr = {"Продавец", "Покупатель", "Поставщик"};
 
-        for (int i = 0; i < newListForUsers.size(); i++) {
-            System.out.println((i + 1) + ". " + newListForUsers.get(i));
+        System.out.println("Выберите вашу специальность:");
+
+        for (int i = 0; i < arr.length; i++) {
+            System.out.println((i + 1) + ". " + arr[i]);
         }
-        System.out.println("Введите номер специальности:");
 
-        while (true) {
-            try {
-                int choice = Integer.parseInt(scanner.next());
-                if (choice >= 1 && choice <= newListForUsers.size()) {
-                    return newListForUsers.get(choice - 1);
-                } else {
-                    System.out.println("Выберите номер от 1 до " + newListForUsers.size());
+        int choice = -1;
+
+        while (choice < 1 || choice > arr.length) {
+            System.out.println("Введите номер специальности (от 1 до " + arr.length + "): ");
+
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                if (choice < 1 || choice > arr.length) {
+                    System.out.println("Ошибка! Введите номер от 1 до " + arr.length);
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Введите корректное число!");
+            } else {
+                System.out.println("Ошибка! Введите корректное число.");
+                scanner.next();
             }
         }
-    }
 
+        return arr[choice - 1];
+    }
     //    Логика посика user
     private void user_by_param() {
-        System.out.println("Введите имя или id user чтобы получить его: ");
-        String user = scanner.next();
-        System.out.println(userDataHandler.getUserByParam(user));
+        System.out.print("Введите имя или id user чтобы получить его: ");
+        System.out.println(userDataHandler.getUserByParam(scanner.next()));
+        System.out.println(userDataHandler.getUserByParam(ScannerUtil.nextInt()));
     }
 
     //    Вывод всех user
     private void get_all_users() {
-        System.out.println("Список пользователей в системе: ");
-        Serialize serialize = new Serialize("/Users/nurdinbakytbekov/Desktop/users.txt");
+        System.out.println("Список пользователей в системе:");
 
-        List<UserEntity> userEntities = serialize.deserialize();
-        if (userEntities == null || userEntities.isEmpty()) {
-            System.out.println("Пользователей пока нет.");
-        } else {
-            userEntities.forEach(user -> System.out.println("ID: " + user.getId() + ", Username: " + user.getUsername() + ", Email: " + user.getEmail() + ", Password: " + user.getPassword() + ", Speciality: " + user.getSpeciality()));
+        UserFileWorker fileWorker = new UserFileWorker("/Users/nurdinbakytbekov/Desktop/users.txt");
+        List<UserEntity> list = fileWorker.readData();
+        for (UserEntity userEntity : list) {
+            System.out.println(userEntity);
         }
     }
 
-//    Логика магазина
+    //    Логика магазина
 
-//    Логика продуктов
+    //    Логика продуктов
     private void add_item() {
         if (userDataHandler.loggedUser == null) {
-            System.out.println("Войдите или зарегистрируйтесь в систему!");
+            System.out.print("Войдите или зарегистрируйтесь в систему!");
             return;
         }
 
         if (!Objects.equals(userDataHandler.loggedUser.getSpeciality(), "Поставщик")) {
-            System.out.println("Вы не поставщик, вы " + userDataHandler.loggedUser.getSpeciality());
+            System.out.print("Вы не поставщик, вы " + userDataHandler.loggedUser.getSpeciality());
             return;
         }
 
         ProductEntity p = new ProductEntity();
 
         System.out.println("Введите имя товара: ");
-        String name = scanner.next();
-        p.setName(name);
+        String name = ScannerUtil.nextLine();
+        System.out.println("Вы сделали имя " + name);
 
         System.out.println("Введите описание: ");
-        String description = scanner.next();
-        p.setDescription(description);
+        String description = ScannerUtil.nextLine();
+        System.out.println("Вы сделали описание " + description);
 
-        boolean validPrice = false;
-        double price = 0.0;
-        while (!validPrice) {
-            System.out.println("Введите цену товара: ");
-            String priceInput = scanner.next();
+        double price = 0;
+        while (true) {
+            System.out.println("Введите цену товара:");
+            String priceInput = ScannerUtil.nextLine();
             try {
                 price = Double.parseDouble(priceInput);
-                validPrice = true;
+                break;
             } catch (NumberFormatException e) {
                 System.out.println("Ошибка: введите корректную цену (число).");
             }
         }
 
+        p.setName(name);
         p.setPrice(price);
         p.setSupplier(userDataHandler.loggedUser);
-
+        p.setDescription(description);
         supplierDataHandler.addItem(userDataHandler.loggedUser, p);
         System.out.println("Товар успешно добавлен!");
     }
-    private void update_item(){
+
+    private void update_item() {
         if (!Objects.equals(userDataHandler.loggedUser.getSpeciality(), "Поставщик")) {
             System.out.println("Вы не поставщик, вы " + userDataHandler.loggedUser.getSpeciality());
             return;
@@ -209,25 +216,25 @@ public class Application {
         }
         ProductEntity p = new ProductEntity();
 
-        System.out.println("Введите id товара чтобы его обновить: ");
-        String id = scanner.next();
+        System.out.print("Введите id товара чтобы его обновить: ");
+        String id = ScannerUtil.nextLine();
         p.setId(Integer.parseInt(id));
 
         System.out.println("Введите новое имя товара: ");
-        String name = scanner.next();
+        String name = ScannerUtil.nextLine();
         p.setName(name);
         System.out.println("Введите новое описание товара: ");
-        String description = scanner.next();
+        String description = ScannerUtil.nextLine();
         p.setDescription(description);
         System.out.println("Введите новую стоимость товара ");
         String priceInput = scanner.next();
         p.setPrice(Double.parseDouble(priceInput));
 
         p.setSupplier(userDataHandler.loggedUser);
-        supplierDataHandler.updateItem(userDataHandler.loggedUser,p);
+        supplierDataHandler.updateItem(userDataHandler.loggedUser, p);
     }
 
-    private void info_items(){
+    private void info_items() {
         if (userDataHandler.loggedUser == null) {
             System.out.println("Войдите или зарегистрируйтесь в систему!");
             return;
@@ -240,7 +247,7 @@ public class Application {
         System.out.println(supplierDataHandler.getProductsInfo(userDataHandler.loggedUser));
     }
 
-//    help
+    //    help
     private void help() {
         System.out.println("""
                 register - регистрация нового пользователя.

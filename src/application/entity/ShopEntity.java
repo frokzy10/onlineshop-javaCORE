@@ -2,10 +2,9 @@ package application.entity;
 
 
 
-import java.io.Serializable;
 import java.util.List;
 
-public class ShopEntity implements Serializable {
+public class ShopEntity {
     private int id;
     private String name;
     private String address;
